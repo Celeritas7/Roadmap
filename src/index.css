@@ -1,0 +1,464 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #fafaf8;
+  --panel: #ffffff;
+  --ink: #1a1a18;
+  --ink-2: #5f5f5b;
+  --ink-3: #a3a39e;
+  --ink-4: #c8c8c2;
+  --rule: #ececea;
+  --rule-strong: #d8d8d4;
+  --hover: rgba(0, 0, 0, 0.035);
+  --accent: #c96442;
+  --sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
+  --serif: 'Newsreader', ui-serif, Georgia, serif;
+  --mono: 'Geist Mono', ui-monospace, monospace;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* ─── Lattice variant — ported from variant-lattice.jsx ──────────── */
+
+.lat {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-feature-settings: "ss01", "cv11";
+}
+.lat .frame { display: grid; grid-template-rows: auto 1fr; min-height: 100%; }
+
+/* density */
+.lat.den-compact { --rowh: 30px; --base: 13px;   --gap: 0;   --pad: 18px; }
+.lat.den-cozy    { --rowh: 36px; --base: 13.5px; --gap: 1px; --pad: 22px; }
+.lat.den-comfy   { --rowh: 44px; --base: 14.5px; --gap: 3px; --pad: 28px; }
+.lat { font-size: var(--base); }
+
+/* topbar */
+.lat .topbar {
+  position: sticky; top: 0; z-index: 5;
+  background: rgba(250, 250, 248, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--rule);
+  padding: 14px var(--pad) 0;
+}
+.lat .toprow { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.lat .title { display: flex; align-items: baseline; gap: 10px; }
+.lat .title h1 { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; margin: 0; color: var(--ink); }
+.lat .title .kbd { color: var(--ink-3); font-size: 11px; font-family: var(--mono); }
+.lat .right { display: flex; align-items: center; gap: 12px; color: var(--ink-3); font-size: 12px; font-family: var(--mono); font-feature-settings: "tnum"; }
+.lat .right .pill { background: #fff; border: 1px solid var(--rule-strong); padding: 4px 10px; border-radius: 6px; color: var(--ink-2); }
+
+/* roles tier */
+.lat .roles {
+  display: flex; align-items: center; gap: 4px;
+  padding: 8px 0 4px;
+  border-bottom: 1px solid var(--rule);
+  flex-wrap: wrap;
+}
+.lat .daypart {
+  display: flex; align-items: center; gap: 8px;
+  padding: 3px 10px 3px 4px; margin-right: 6px;
+  border-right: 1px solid var(--rule);
+}
+.lat .daypart .em { font-size: 16px; line-height: 1; }
+.lat .daypart .meta { display: flex; flex-direction: column; line-height: 1.2; }
+.lat .daypart .meta .now { font-size: 11.5px; color: var(--ink); font-weight: 500; }
+.lat .daypart .meta .h { font-size: 10.5px; color: var(--ink-3); font-family: var(--mono); font-feature-settings: "tnum"; }
+
+.lat .role {
+  appearance: none; border: 0; cursor: default; font: inherit;
+  padding: 5px 10px 5px 8px; border-radius: 6px;
+  background: transparent; color: var(--ink-2);
+  display: inline-flex; align-items: center; gap: 7px; line-height: 1.3;
+  transition: background 0.12s, opacity 0.15s, color 0.12s, box-shadow 0.12s;
+  box-shadow: inset 0 0 0 1px transparent;
+}
+.lat .role:hover { background: var(--hover); }
+.lat .role .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; background: hsl(var(--h) 50% 60%); }
+.lat .role .name { font-size: 12.5px; font-weight: 500; color: var(--ink); }
+.lat .role .sub { font-size: 11px; color: var(--ink-3); font-family: var(--mono); }
+.lat .role.active { background: #fff; box-shadow: inset 0 0 0 1px var(--rule-strong); }
+.lat .role.active .dot { background: hsl(var(--h) 55% 50%); box-shadow: 0 0 0 3px hsl(var(--h) 70% 55% / 0.14); }
+.lat .role.muted { opacity: 0.42; }
+.lat .role.muted .dot { background: var(--ink-4); }
+.lat .role.muted:hover { opacity: 0.7; }
+.lat .role .pin { font-family: var(--mono); font-size: 9px; padding: 1px 5px; border-radius: 3px; letter-spacing: 0.04em; background: var(--bg); color: var(--ink-3); }
+.lat .role.active .pin { background: hsl(var(--h) 60% 92%); color: hsl(var(--h) 50% 32%); }
+
+/* muted folder */
+.lat .folder.muted { opacity: 0.35; filter: saturate(0.35); }
+.lat .folder.muted:hover { opacity: 0.6; }
+
+/* folders + filters bar */
+.lat .fbar { display: flex; align-items: center; gap: 10px; padding: 14px 0; flex-wrap: wrap; }
+.lat .folders { display: flex; align-items: center; gap: 6px; flex: 1 1 auto; min-width: 0; flex-wrap: wrap; }
+.lat .flabel { font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.08em; margin-right: 6px; font-family: var(--mono); }
+
+.lat .folder {
+  appearance: none; border: 1px solid var(--rule-strong); background: #fff; cursor: default;
+  padding: 5px 10px 5px 8px; border-radius: 7px; font: inherit;
+  display: inline-flex; align-items: center; gap: 7px; line-height: 1.3;
+  color: var(--ink-2); font-size: 12.5px; transition: all 0.12s; min-height: 30px;
+}
+.lat .folder:hover { border-color: var(--ink-3); background: #fdfdfb; }
+.lat .folder.on {
+  border-color: hsl(var(--h) 50% 60%);
+  background: hsl(var(--h) 60% 97%);
+  color: hsl(var(--h) 50% 28%);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+.lat .folder .ficon { width: 14px; height: 14px; color: hsl(var(--h) 55% 50%); }
+.lat .folder .fcount { font-family: var(--mono); font-size: 10px; color: var(--ink-3); background: var(--bg); padding: 1px 5px; border-radius: 3px; font-feature-settings: "tnum"; }
+.lat .folder.on .fcount { background: hsl(var(--h) 60% 92%); color: hsl(var(--h) 50% 32%); }
+
+.lat .ftools { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.lat .fbtn {
+  appearance: none; border: 1px solid var(--rule-strong); background: #fff; cursor: default;
+  padding: 5px 10px; border-radius: 6px; font: inherit; font-size: 12.5px;
+  color: var(--ink-2); display: inline-flex; align-items: center; gap: 7px; min-height: 30px;
+  transition: all 0.12s;
+}
+.lat .fbtn:hover { border-color: var(--ink-3); color: var(--ink); }
+.lat .fbtn.has-active { border-color: var(--accent); color: var(--accent); background: #fff; }
+.lat .fbtn .badge {
+  background: var(--accent); color: #fff;
+  font-family: var(--mono); font-size: 10px;
+  padding: 1px 6px; border-radius: 8px; font-feature-settings: "tnum";
+}
+.lat .fbtn .chev { width: 10px; height: 10px; transition: transform 0.15s; opacity: 0.6; }
+.lat .fbtn.open .chev { transform: rotate(180deg); }
+.lat .filterwrap { position: relative; }
+
+.lat .pop {
+  position: absolute; top: calc(100% + 6px); right: 0; z-index: 20;
+  min-width: 340px; background: #fff;
+  border: 1px solid var(--rule-strong); border-radius: 8px;
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.02);
+  padding: 4px; display: flex; flex-direction: column;
+}
+.lat .pop .popgroup { padding: 8px 10px; margin: 0; border-top: 1px solid var(--rule); }
+.lat .pop .popgroup:first-child { border-top: 0; }
+.lat .pop .glabel {
+  font-size: 10.5px; color: var(--ink-3); text-transform: uppercase;
+  letter-spacing: 0.08em; font-family: var(--mono); margin-bottom: 6px; display: block;
+}
+.lat .pop .opts { display: flex; flex-wrap: wrap; gap: 3px; }
+.lat .pop .fchip {
+  appearance: none; border: 0; background: transparent; color: var(--ink-2);
+  padding: 4px 8px; font-size: 12px; font-family: inherit; border-radius: 5px;
+  cursor: default; transition: background 0.12s, color 0.12s;
+  line-height: 1.3; display: inline-flex; align-items: center; gap: 5px;
+}
+.lat .pop .fchip:hover { background: var(--hover); color: var(--ink); }
+.lat .pop .fchip.on { background: var(--accent); color: #fff; }
+.lat .pop .fchip .at { opacity: 0.6; }
+.lat .pop .fchip.on .at { opacity: 0.8; }
+.lat .pop .popfoot {
+  padding: 8px 10px; border-top: 1px solid var(--rule);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.lat .pop .popfoot .ct { font-size: 11px; color: var(--ink-3); font-family: var(--mono); }
+.lat .clear {
+  font-size: 11px; color: var(--ink-3); border: 1px solid transparent; background: transparent;
+  padding: 5px 8px; border-radius: 6px; cursor: default; font-family: inherit;
+}
+.lat .clear:hover:not(:disabled) { color: var(--ink); background: var(--hover); }
+.lat .clear:disabled { opacity: 0.35; }
+
+/* main content scroll area */
+.lat .main { padding: 0 var(--pad) 80px; }
+
+/* tree */
+.lat .group { margin-top: 18px; }
+.lat .group.depth-0 > .ghead {
+  padding: 14px 0 10px;
+  border-top: 1px solid var(--rule);
+  display: flex; align-items: center; gap: 8px;
+  cursor: default; user-select: none;
+}
+.lat .group.depth-0:first-child > .ghead { border-top: 0; padding-top: 10px; }
+.lat .group.depth-1 > .ghead {
+  padding: 8px 0 6px 22px;
+  display: flex; align-items: center; gap: 8px;
+  cursor: default; user-select: none;
+}
+.lat .ghead .twist { font-family: var(--mono); font-size: 10px; color: var(--ink-3); width: 12px; transition: transform 0.15s; }
+.lat .ghead.col .twist { transform: rotate(-90deg); }
+.lat .ghead h2 { margin: 0; font-size: 13px; font-weight: 600; color: var(--ink); letter-spacing: -0.005em; }
+.lat .group.depth-1 .ghead h2 { font-size: 12px; color: var(--ink-2); font-weight: 500; }
+.lat .ghead .meta {
+  margin-left: auto; display: flex; gap: 6px; align-items: center;
+  color: var(--ink-3); font-size: 11px; font-family: var(--mono); font-feature-settings: "tnum";
+}
+.lat .ghead .bar {
+  width: 60px; height: 3px; background: var(--rule); border-radius: 2px;
+  position: relative; overflow: hidden;
+}
+.lat .ghead .bar::after {
+  content: ''; position: absolute; inset: 0 auto 0 0;
+  background: var(--accent); width: var(--pct, 0%);
+}
+
+/* task row */
+.lat .rows { display: flex; flex-direction: column; gap: var(--gap); }
+.lat .group.depth-1 .rows { padding-left: 22px; }
+.lat .row {
+  display: grid; grid-template-columns: 22px 18px 1fr auto 20px; gap: 10px; align-items: center;
+  min-height: var(--rowh); padding: 0 8px 0 0; border-radius: 6px;
+  position: relative; cursor: default; transition: background 0.1s;
+}
+.lat .row:hover { background: var(--hover); }
+.lat .grip {
+  color: var(--ink-3); font-size: 10px; opacity: 0; cursor: grab;
+  user-select: none; font-family: var(--mono); text-align: center; padding: 4px 0; line-height: 1;
+}
+.lat .row:hover .grip { opacity: 0.7; }
+.lat .check {
+  appearance: none; width: 14px; height: 14px; border-radius: 4px; cursor: default;
+  border: 1.5px solid var(--ink-4); background: #fff; padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: background 0.12s, border-color 0.12s;
+}
+.lat .check:hover { border-color: var(--accent); }
+.lat .check.done { background: var(--accent); border-color: var(--accent); }
+.lat .check.done::after {
+  content: ''; width: 6px; height: 3px;
+  border-left: 1.5px solid #fff; border-bottom: 1.5px solid #fff;
+  transform: rotate(-45deg) translateY(-1px);
+}
+.lat .title-c { color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lat .row.done .title-c { color: var(--ink-3); text-decoration: line-through; text-decoration-color: var(--ink-4); }
+.lat .tags { display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; font-size: 11px; flex-shrink: 0; }
+
+/* add-task affordance — mirrors the .row grid so input/button align under the title column */
+.lat .addrow {
+  display: grid; grid-template-columns: 22px 18px 1fr auto; gap: 10px; align-items: center;
+  min-height: var(--rowh); padding: 0 8px 0 0;
+}
+.lat .addbtn {
+  appearance: none; border: 0; background: transparent; text-align: left;
+  color: var(--ink-3); font: inherit; font-size: 12px; cursor: pointer;
+  opacity: 0; transition: opacity 0.12s, color 0.12s; padding: 0;
+}
+.lat .group > .rows:hover > .addrow > .addbtn,
+.lat .addbtn:focus-visible { opacity: 1; }
+.lat .addbtn:hover { color: var(--accent); }
+.lat .addinput {
+  border: 0; border-bottom: 1.5px solid var(--accent); background: transparent;
+  font: inherit; font-size: 13px; color: var(--ink);
+  padding: 2px 0; outline: none; width: 100%;
+}
+.lat .addinput::placeholder { color: var(--ink-4); }
+
+/* delete affordances — reveal on hover, both row (×) and group header (×) */
+.lat .rowdel, .lat .gdel, .lat .logdel {
+  appearance: none; border: 0; background: transparent; cursor: pointer;
+  color: var(--ink-3); font-size: 15px; line-height: 1; padding: 2px 4px;
+  border-radius: 4px; opacity: 0; transition: opacity 0.12s, color 0.12s, background 0.12s;
+}
+.lat .row:hover .rowdel, .lat .ghead:hover .gdel, .lat .logrow:hover .logdel,
+.lat .rowdel:focus-visible, .lat .gdel:focus-visible, .lat .logdel:focus-visible { opacity: 1; }
+.lat .rowdel:hover, .lat .gdel:hover, .lat .logdel:hover { color: var(--accent); background: var(--hover); }
+.lat .ghead .gdel { margin-left: auto; }
+.lat .ghead .meta + .gdel { margin-left: 8px; }
+
+/* non-blocking mutation-error banner (a failed write must not blank the tree) */
+.lat .errbanner {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  margin: 10px 0; padding: 8px 12px; border-radius: 6px;
+  background: hsl(14 60% 96%); border: 1px solid hsl(14 50% 85%);
+  color: hsl(14 45% 32%); font-size: 12.5px;
+}
+.lat .errbanner button {
+  appearance: none; border: 1px solid hsl(14 50% 80%); background: #fff;
+  color: hsl(14 45% 32%); font: inherit; font-size: 11.5px; padding: 3px 10px;
+  border-radius: 5px; cursor: pointer;
+}
+.lat .errbanner button:hover { background: hsl(14 60% 97%); }
+
+/* tag chips */
+.lat .tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 2px 8px; border-radius: 5px;
+  font-family: var(--sans); font-size: 11px; line-height: 1.4; letter-spacing: -0.005em;
+}
+.lat .tag.proj {
+  background: hsl(var(--h) 50% 96%);
+  color: hsl(var(--h) 45% 30%);
+  box-shadow: inset 0 0 0 1px hsl(var(--h) 35% 88%);
+}
+.lat .tag.proj .pdot { width: 6px; height: 6px; border-radius: 50%; background: hsl(var(--h) 55% 50%); }
+.lat .tag.ctx {
+  background: transparent; color: var(--ink-3);
+  padding: 2px 4px; font-family: var(--mono); font-size: 10.5px;
+}
+.lat .tag.ctx .at { color: var(--ink-4); }
+
+/* empty state */
+.lat .empty {
+  padding: 48px 20px 60px; text-align: center;
+  max-width: 480px; margin: 32px auto 0;
+  border: 1px dashed var(--rule-strong); border-radius: 12px; background: #fff;
+}
+.lat .empty h2 { margin: 0 0 8px; font-size: 14px; font-weight: 600; color: var(--ink); letter-spacing: -0.005em; }
+.lat .empty p { color: var(--ink-3); font-size: 12.5px; margin: 0 0 20px; line-height: 1.5; }
+
+/* log section */
+.lat .log { margin-top: 40px; padding: 18px 0 0; border-top: 1px solid var(--rule); }
+.lat .log h3 {
+  margin: 0 0 10px; font-size: 11px; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--ink-3); font-family: var(--mono);
+}
+.lat .log h3 .date {
+  color: var(--ink-2); margin-left: 8px;
+  font-family: var(--sans); font-weight: 500;
+  text-transform: none; letter-spacing: 0;
+}
+.lat .logrow {
+  display: grid; grid-template-columns: 14px 1fr auto auto 20px; gap: 10px; align-items: center;
+  padding: 7px 0; font-size: 13px; border-radius: 6px;
+}
+.lat .logrow .tick { color: var(--accent); font-size: 11px; line-height: 1; }
+.lat .logrow .t { color: var(--ink-2); }
+.lat .logrow .where { font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+.lat .logrow .dur { font-family: var(--mono); font-size: 11px; color: var(--ink-2); font-feature-settings: "tnum"; }
+
+/* quick-log affordance */
+.lat .logaddbtn {
+  appearance: none; border: 0; background: transparent; color: var(--ink-3);
+  font: inherit; font-size: 12px; cursor: pointer; padding: 6px 0; transition: color 0.12s;
+}
+.lat .logaddbtn:hover { color: var(--accent); }
+.lat .logdraft { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 0; }
+.lat .logdraft select, .lat .logdraft input {
+  font: inherit; font-size: 12.5px; color: var(--ink);
+  border: 1px solid var(--rule-strong); border-radius: 6px; background: #fff;
+  padding: 4px 8px; outline: none;
+}
+.lat .logdraft select:focus, .lat .logdraft input:focus { border-color: var(--accent); }
+.lat .logdraft .logdur { width: 64px; }
+.lat .logdraft .lognotes { flex: 1; min-width: 120px; }
+.lat .logdraft .logcommit {
+  appearance: none; border: 0; background: var(--accent); color: #fff;
+  font: inherit; font-size: 12px; padding: 5px 12px; border-radius: 6px; cursor: pointer;
+}
+.lat .logdraft .logcancel {
+  appearance: none; border: 1px solid var(--rule-strong); background: #fff; color: var(--ink-2);
+  font: inherit; font-size: 12px; padding: 5px 10px; border-radius: 6px; cursor: pointer;
+}
+
+/* debug-time slider — only renders when VITE_DEBUG_TIME is set */
+.dbg-time {
+  position: fixed; right: 12px; bottom: 12px; z-index: 30;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid var(--rule-strong); border-radius: 8px;
+  padding: 8px 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--mono); font-size: 11px; color: var(--ink-2);
+  font-feature-settings: "tnum";
+}
+.dbg-time .lbl { color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+.dbg-time input[type="range"] { width: 140px; cursor: pointer; }
+.dbg-time .val { color: var(--ink); min-width: 18px; text-align: right; }
+.dbg-time .hint { color: var(--ink-3); }
+
+/* log empty-state (all viewports) */
+.lat .logempty { color: var(--ink-3); font-size: 12.5px; padding: 10px 0 4px; }
+
+/* mobile-only sheet chrome — hidden on desktop so the popover is unchanged */
+.lat .pop .sheethead { display: none; }
+.lat .popbackdrop { display: none; }
+
+/* touch rename trigger — hidden on desktop (rename via double-click there) */
+.lat .rowedit { display: none; }
+
+/* ─── responsive polish (<=768px) — additive, breakpoint-gated ─────────
+   Desktop layout/behavior above is untouched; everything here lives only
+   inside this query. Touch-reorder stays desktop-only (deferred to v2). */
+@media (max-width: 768px) {
+  /* grid items default to min-width:auto and would grow to their min-content,
+     overflowing the viewport — let the topbar and main column shrink instead */
+  .lat .topbar, .lat .main { min-width: 0; }
+  .lat .toprow { flex-wrap: wrap; row-gap: 6px; }
+
+  /* roles tier: horizontal scroll (same treatment as folders) */
+  .lat .roles {
+    flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .lat .roles::-webkit-scrollbar { display: none; }
+  .lat .daypart, .lat .role { flex-shrink: 0; }
+
+  /* folders: horizontal scroll instead of wrap; tabs stay tappable */
+  .lat .folders {
+    flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .lat .folders::-webkit-scrollbar { display: none; }
+  .lat .folder, .lat .flabel { flex-shrink: 0; }
+
+  /* keep rows within the viewport: let the title ellipsize, drop verbose
+     @context chips (project chip stays as the role/colour cue) */
+  .lat .title-c { min-width: 0; }
+  .lat .row .tag.ctx { display: none; }
+
+  /* hover-reveal doesn't exist on touch: make affordances always tappable */
+  .lat .rowdel, .lat .gdel, .lat .logdel, .lat .addbtn { opacity: 1; }
+  /* task row gains a 6th column for the touch rename (✎) button */
+  .lat .row { grid-template-columns: 22px 18px 1fr auto auto 20px; }
+  .lat .rowedit {
+    display: inline-flex; align-items: center; justify-content: center;
+    appearance: none; border: 0; background: transparent; cursor: pointer;
+    color: var(--ink-3); font-size: 13px; line-height: 1; padding: 2px 4px;
+    border-radius: 4px;
+  }
+  .lat .rowedit:hover { color: var(--accent); background: var(--hover); }
+
+  /* filter -> bottom sheet (portaled into .lat, so `fixed` is viewport-relative) */
+  .lat .popbackdrop {
+    display: block; position: fixed; inset: 0; z-index: 40;
+    background: rgba(0, 0, 0, 0.35); animation: sheet-fade 0.18s ease-out;
+  }
+  .lat .pop {
+    position: fixed; inset: auto 0 0 0; z-index: 41;
+    min-width: 0; width: 100%; max-height: 80vh; overflow-y: auto;
+    border-radius: 14px 14px 0 0;
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.18);
+    padding: 0 6px 18px; animation: sheet-up 0.2s ease-out;
+  }
+  .lat .pop .sheethead {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 10px 8px; position: sticky; top: 0; background: #fff;
+    border-bottom: 1px solid var(--rule);
+  }
+  .lat .pop .sheettitle { font-size: 14px; font-weight: 600; color: var(--ink); }
+  .lat .pop .sheetclose {
+    appearance: none; border: 0; background: transparent; cursor: pointer;
+    font-size: 24px; line-height: 1; color: var(--ink-3); padding: 0 6px;
+  }
+  /* larger tap targets for filter chips on touch */
+  .lat .pop .fchip { padding: 9px 13px; font-size: 13.5px; }
+}
+
+@keyframes sheet-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes sheet-fade { from { opacity: 0; } to { opacity: 1; } }
