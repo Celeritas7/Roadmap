@@ -18,8 +18,8 @@ export function FoldersRow() {
 
   return (
     <div className="fbar">
-      <div className="folders">
-        <span className="flabel">Folders</span>
+      <span className="flabel">Folders</span>
+      <div className="focus-grid">
         {PROJECTS.map((p) => (
           <FolderTab
             key={p.id}

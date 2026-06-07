@@ -1,0 +1,301 @@
+/* ═══════════════════════════════════════════════════════════════
+   ROADMAP — visual system
+   Shared markup, three "journey" themes via [data-theme].
+   Responsive via [data-vp="mobile|desktop"] (NOT @media — two frames
+   live in one window, so layout is driven by an attribute).
+   ═══════════════════════════════════════════════════════════════ */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+.rm {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  font-family: var(--ui);
+  color: var(--ink);
+  background: var(--canvas);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "ss01";
+  --rad: 14px;
+  --rad-sm: 9px;
+  isolation: isolate;
+}
+.rm ::selection { background: var(--accent); color: var(--on-accent); }
+
+/* ─────────────────────────────────────────────────────────────
+   TOKENS — TRAILHEAD (clean / light / route line)
+   ───────────────────────────────────────────────────────────── */
+.rm[data-theme="trailhead"] {
+  --canvas: #fbfbf9;
+  --panel: #ffffff;
+  --panel-2: #f6f6f3;
+  --ink: #16181d;
+  --ink-2: #565a63;
+  --ink-3: #9a9ea7;
+  --ink-4: #c6c9d0;
+  --rule: #ecece8;
+  --rule-strong: #dedfda;
+  --hover: rgba(20, 22, 28, 0.04);
+  --accent: #3b6ef0;
+  --accent-soft: #eaf0fe;
+  --accent-ink: #2452cc;
+  --on-accent: #ffffff;
+  --ui: 'Hanken Grotesk', system-ui, sans-serif;
+  --display: 'Space Grotesk', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, monospace;
+  --shadow-card: 0 1px 2px rgba(16,18,29,.04), 0 4px 16px rgba(16,18,29,.04);
+  --shadow-pop: 0 12px 40px rgba(16,18,29,.14), 0 0 0 1px rgba(16,18,29,.05);
+  --card-bd: 1px solid var(--rule);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   TOKENS — SUMMIT (dark tactical board / ascent)
+   ───────────────────────────────────────────────────────────── */
+.rm[data-theme="summit"] {
+  --canvas: #0a0c10;
+  --panel: #14171e;
+  --panel-2: #1b1f28;
+  --ink: #eef1f7;
+  --ink-2: #a4abba;
+  --ink-3: #6b7280;
+  --ink-4: #444b57;
+  --rule: #232834;
+  --rule-strong: #2f3542;
+  --hover: rgba(255, 255, 255, 0.045);
+  --accent: #5b8cff;
+  --accent-soft: rgba(91, 140, 255, 0.14);
+  --accent-ink: #9db8ff;
+  --on-accent: #08111f;
+  --ui: 'Hanken Grotesk', system-ui, sans-serif;
+  --display: 'Space Grotesk', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, monospace;
+  --shadow-card: 0 1px 2px rgba(0,0,0,.4), 0 8px 28px rgba(0,0,0,.35);
+  --shadow-pop: 0 20px 60px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.06);
+  --card-bd: 1px solid var(--rule);
+}
+/* faint tactical field on the canvas */
+.rm[data-theme="summit"]::before {
+  content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(120% 80% at 50% -10%, hsl(var(--role-h, 220) 72% 60% / .17), transparent 60%),
+    linear-gradient(transparent 0 39px, rgba(255,255,255,.018) 39px 40px),
+    linear-gradient(90deg, transparent 0 39px, rgba(255,255,255,.018) 39px 40px);
+  background-size: auto, 40px 40px, 40px 40px;
+}
+.rm[data-theme="summit"] > * { position: relative; z-index: 1; }
+
+/* ─────────────────────────────────────────────────────────────
+   TOKENS — FIELD GUIDE (warm editorial / expedition journal)
+   ───────────────────────────────────────────────────────────── */
+.rm[data-theme="fieldguide"] {
+  --canvas: #f3ede1;
+  --panel: #faf6ec;
+  --panel-2: #f1ead9;
+  --ink: #211c14;
+  --ink-2: #5e564a;
+  --ink-3: #9b9384;
+  --ink-4: #c4bba8;
+  --rule: #e3dac6;
+  --rule-strong: #d2c6ac;
+  --hover: rgba(33, 28, 20, 0.04);
+  --accent: #2f64df;
+  --accent-soft: #e4ebfb;
+  --accent-ink: #244fb3;
+  --on-accent: #ffffff;
+  --ui: 'Hanken Grotesk', system-ui, sans-serif;
+  --display: 'Instrument Serif', Georgia, serif;
+  --mono: 'JetBrains Mono', ui-monospace, monospace;
+  --shadow-card: 0 1px 2px rgba(80,60,30,.05), 0 6px 20px rgba(80,60,30,.06);
+  --shadow-pop: 0 16px 48px rgba(80,60,30,.18), 0 0 0 1px rgba(80,60,30,.07);
+  --card-bd: 1px solid var(--rule-strong);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   LAYOUT SHELL
+   ═══════════════════════════════════════════════════════════════ */
+.rm-scroll { height: 100%; overflow-y: auto; overflow-x: hidden; }
+.rm-pad { padding: 0 28px 96px; }
+.rm[data-vp="mobile"] .rm-pad { padding: 0 16px 120px; }
+
+/* ─── HEADER ─── */
+.rm-header {
+  position: sticky; top: 0; z-index: 6;
+  background: color-mix(in srgb, var(--canvas) 86%, transparent);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  border-bottom: 1px solid var(--rule);
+  padding: 18px 28px 0;
+}
+.rm[data-vp="mobile"] .rm-header { padding: 52px 16px 0; }
+.rm-toprow { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.rm-brand { display: flex; align-items: baseline; gap: 11px; min-width: 0; }
+.rm-mark {
+  font-family: var(--display); font-weight: 600; letter-spacing: -0.02em;
+  font-size: 22px; line-height: 1; color: var(--ink); margin: 0;
+  display: flex; align-items: center; gap: 9px;
+}
+.rm[data-theme="fieldguide"] .rm-mark { font-weight: 400; font-size: 28px; letter-spacing: 0; }
+.rm-mark .glyph {
+  width: 22px; height: 22px; flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.rm-mark .glyph svg { width: 100%; height: 100%; }
+.rm-kbd {
+  font-family: var(--mono); font-size: 10.5px; color: var(--ink-3);
+  letter-spacing: 0.02em;
+}
+.rm[data-vp="mobile"] .rm-kbd { display: none; }
+.rm-meta { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.rm-datepill {
+  font-family: var(--mono); font-size: 11.5px; color: var(--ink-2);
+  background: var(--panel); border: 1px solid var(--rule-strong);
+  padding: 5px 11px; border-radius: 7px; font-feature-settings: "tnum"; white-space: nowrap;
+}
+.rm-week { font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); }
+.rm[data-vp="mobile"] .rm-week { display: none; }
+
+/* ─── ROLE TIER (formation) ─── */
+.rm-roles {
+  display: flex; align-items: stretch; gap: 8px;
+  padding: 13px 0 14px;
+}
+.rm[data-vp="mobile"] .rm-roles {
+  overflow-x: auto; scrollbar-width: none; padding: 12px 0 13px;
+}
+.rm[data-vp="mobile"] .rm-roles::-webkit-scrollbar { display: none; }
+.daypart {
+  display: flex; align-items: center; gap: 9px; padding-right: 14px;
+  margin-right: 4px; border-right: 1px solid var(--rule); flex-shrink: 0;
+}
+.daypart .dp-glyph {
+  font-size: 17px; line-height: 1; color: var(--accent);
+  width: 26px; height: 26px; display: grid; place-items: center;
+  border-radius: 8px; background: var(--accent-soft);
+}
+.daypart .dp-meta { display: flex; flex-direction: column; line-height: 1.25; }
+.daypart .dp-now { font-size: 12.5px; font-weight: 600; color: var(--ink); }
+.daypart .dp-h { font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); font-feature-settings: "tnum"; }
+
+.role-chip {
+  appearance: none; cursor: pointer; font: inherit; text-align: left;
+  background: var(--panel); border: 1px solid var(--rule);
+  border-radius: 11px; padding: 8px 13px 8px 11px; flex-shrink: 0;
+  display: flex; align-items: center; gap: 10px;
+  transition: transform .14s, border-color .14s, background .14s, box-shadow .14s, opacity .14s;
+}
+.role-chip:hover { border-color: var(--rule-strong); transform: translateY(-1px); }
+.role-chip .rc-badge {
+  width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0;
+  display: grid; place-items: center;
+  font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: 0.02em;
+  background: hsl(var(--h) 60% 50% / .13); color: hsl(var(--h) 55% 42%);
+  border: 1px solid hsl(var(--h) 50% 50% / .22);
+}
+.rm[data-theme="summit"] .role-chip .rc-badge { color: hsl(var(--h) 75% 72%); background: hsl(var(--h) 60% 55% / .16); }
+.role-chip .rc-text { display: flex; flex-direction: column; line-height: 1.2; }
+.role-chip .rc-name { font-size: 13.5px; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; }
+.role-chip .rc-sub { font-family: var(--mono); font-size: 10px; color: var(--ink-3); letter-spacing: 0.01em; }
+.role-chip.active {
+  border-color: hsl(var(--h) 55% 50% / .5);
+  box-shadow: 0 0 0 1px hsl(var(--h) 55% 50% / .35), var(--shadow-card);
+  background: hsl(var(--h) 60% 50% / .05);
+}
+.rm[data-theme="summit"] .role-chip.active { background: hsl(var(--h) 60% 50% / .1); }
+.role-chip.active .rc-badge { background: hsl(var(--h) 60% 50%); color: #fff; border-color: transparent; }
+.rm[data-theme="summit"] .role-chip.active .rc-badge { box-shadow: 0 0 14px hsl(var(--h) 70% 55% / .6); }
+.role-chip.idle { opacity: 0.62; }
+.role-chip.idle:hover { opacity: 0.9; }
+.role-chip .rc-mini {
+  font-family: var(--mono); font-size: 9.5px; color: var(--ink-3);
+  font-feature-settings: "tnum"; margin-left: 2px;
+}
+.rm[data-vp="mobile"] .role-chip .rc-mini { display: none; }
+
+/* ─── SUBBAR (view title · filter · clear) ─── */
+.rm-subbar {
+  display: flex; align-items: center; gap: 12px;
+  padding: 4px 0 16px;
+}
+.rm-viewtitle {
+  display: flex; align-items: center; gap: 9px; min-width: 0;
+  font-family: var(--display); font-size: 14px; font-weight: 600; color: var(--ink);
+  letter-spacing: -0.01em;
+}
+.rm[data-theme="fieldguide"] .rm-viewtitle { font-family: var(--ui); font-weight: 700; }
+.rm-viewtitle .vt-back {
+  appearance: none; border: 1px solid var(--rule-strong); background: var(--panel);
+  cursor: pointer; color: var(--ink-2); border-radius: 7px; width: 28px; height: 28px;
+  display: grid; place-items: center; transition: all .12s;
+}
+.rm-viewtitle .vt-back:hover { color: var(--ink); border-color: var(--ink-3); }
+.rm-viewtitle .vt-crumb { color: var(--ink-3); font-family: var(--mono); font-size: 11px; font-weight: 400; }
+.rm-tools { margin-left: auto; display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.rm-btn {
+  appearance: none; cursor: pointer; font: inherit; font-size: 12.5px;
+  border: 1px solid var(--rule-strong); background: var(--panel); color: var(--ink-2);
+  padding: 6px 12px; border-radius: 8px; min-height: 32px;
+  display: inline-flex; align-items: center; gap: 7px; transition: all .12s;
+}
+.rm-btn:hover { border-color: var(--ink-3); color: var(--ink); }
+.rm-btn svg { width: 13px; height: 13px; }
+.rm-btn.live { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.rm-btn .badge {
+  background: var(--accent); color: var(--on-accent); font-family: var(--mono);
+  font-size: 10px; padding: 1px 6px; border-radius: 7px; font-feature-settings: "tnum";
+}
+.rm-clear {
+  appearance: none; cursor: pointer; font: inherit; font-size: 11.5px;
+  border: 0; background: transparent; color: var(--ink-3); padding: 6px 8px; border-radius: 6px;
+}
+.rm-clear:hover:not(:disabled) { color: var(--ink); background: var(--hover); }
+.rm-clear:disabled { opacity: 0.4; cursor: default; }
+
+/* ═══════════════════════════════════════════════════════════════
+   ROLE PERSONALITY — the active tier washes the canvas + shifts accent
+   (layers on top of whichever direction/theme is active)
+   ═══════════════════════════════════════════════════════════════ */
+.rm[data-role="attackers"]  { --role-h: 18; }
+.rm[data-role="midplayers"] { --role-h: 158; }
+.rm[data-role="defenders"]  { --role-h: 252; }
+
+.rm[data-role] {
+  --accent: hsl(var(--role-h) 62% 50%);
+  --accent-soft: hsl(var(--role-h) 62% 55% / .12);
+  --accent-ink: hsl(var(--role-h) 52% 40%);
+  background-image: radial-gradient(135% 62% at 50% -8%, hsl(var(--role-h) 65% 52% / .14), transparent 60%);
+}
+/* trailhead (light): tint the off-white canvas per tier */
+.rm[data-theme="trailhead"][data-role="attackers"]  { --canvas: #fcf7f3; }
+.rm[data-theme="trailhead"][data-role="midplayers"] { --canvas: #f4faf6; }
+.rm[data-theme="trailhead"][data-role="defenders"]  { --canvas: #f4f6fd; }
+
+/* field guide (warm paper): shift the paper tone per tier */
+.rm[data-theme="fieldguide"][data-role] {
+  --accent: hsl(var(--role-h) 52% 44%);
+  --accent-ink: hsl(var(--role-h) 48% 36%);
+  background-image: radial-gradient(135% 62% at 50% -6%, hsl(var(--role-h) 50% 50% / .16), transparent 60%);
+}
+.rm[data-theme="fieldguide"][data-role="attackers"]  { --canvas: #f5ecdd; }
+.rm[data-theme="fieldguide"][data-role="midplayers"] { --canvas: #edf1e2; }
+.rm[data-theme="fieldguide"][data-role="defenders"]  { --canvas: #eaedf3; }
+
+/* summit (dark): brighter accent, role-hued top glow (via ::before), tinted base */
+.rm[data-theme="summit"][data-role] {
+  --accent: hsl(var(--role-h) 74% 66%);
+  --accent-soft: hsl(var(--role-h) 60% 52% / .18);
+  --accent-ink: hsl(var(--role-h) 78% 74%);
+  background-image: none;
+}
+.rm[data-theme="summit"][data-role="attackers"]  { --canvas: #110c0a; }
+.rm[data-theme="summit"][data-role="midplayers"] { --canvas: #090f0c; }
+.rm[data-theme="summit"][data-role="defenders"]  { --canvas: #0a0b13; }
+
+/* personality tagline in the header */
+.rm-mood {
+  font-size: 12px; font-style: italic; color: hsl(var(--role-h, 220) 46% 46%);
+  letter-spacing: .005em; transition: color .3s;
+}
+.rm[data-theme="summit"] .rm-mood { color: hsl(var(--role-h, 220) 62% 72%); }
+.rm[data-theme="fieldguide"] .rm-mood { font-family: var(--display); font-style: italic; font-size: 14px; }
+.rm[data-vp="mobile"] .rm-mood { display: none; }

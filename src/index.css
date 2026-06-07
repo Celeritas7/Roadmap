@@ -380,3 +380,88 @@ body {
 }
 @keyframes sheetup { from { transform: translateY(100%); } to { transform: translateY(0); } }
 @keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+
+/* ════════════════════════════════════════════════════════════════════
+   STEP 3 — FOCUS FOLDER CARDS (minimal)
+   ─────────────────────────────────────────────────────────────────────
+   Visual card treatment for the Focus folder view. Scope is the card
+   CHROME + head only: container, per-folder hue accent, mute/active
+   states. The route-track, "next stop" panel, done/total split and
+   footer/"View all" are V2-A and intentionally ABSENT — no DOM emitted
+   for them, so nothing reads per-task done/next selection here.
+
+   Additive: `.fbar`/`.flabel`/`.focus-grid`/`.folder-card`/`.fc-*` were
+   undefined before this step (the body rendered unstyled after Step 1),
+   so these rules override nothing. Everything reads existing tokens plus
+   the per-card `--h` (project hue, set inline by FolderTab). Role-tint
+   is NOT re-derived here: it composes from the data-role wash on `.rm`
+   (accent/canvas) plus the `.muted` flag FoldersRow computes from
+   useEffectiveRoleId() — see FoldersRow.tsx.
+   ════════════════════════════════════════════════════════════════════ */
+.rm .fbar { padding: 4px 0 10px; }
+.rm .flabel {
+  display: block; margin: 0 0 11px;
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.09em;
+  text-transform: uppercase; color: var(--ink-3);
+}
+.rm .focus-grid {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px;
+}
+
+.rm .folder-card {
+  appearance: none; cursor: pointer; font: inherit; text-align: left; width: 100%;
+  position: relative; overflow: hidden;
+  background: var(--panel); border: var(--card-bd); border-radius: var(--rad);
+  padding: 18px; box-shadow: var(--shadow-card);
+  transition: transform .16s, box-shadow .16s, border-color .16s, opacity .16s;
+}
+/* per-folder hue accent bar (trailhead/summit); fieldguide swaps to a top
+   border + tighter radius to match the editorial direction */
+.rm .folder-card::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  background: hsl(var(--h) 60% 52%); opacity: .9;
+}
+.rm[data-theme="fieldguide"] .folder-card::before { width: 0; }
+.rm[data-theme="fieldguide"] .folder-card {
+  border-top: 3px solid hsl(var(--h) 50% 45%); border-radius: 4px;
+}
+.rm .folder-card:hover {
+  transform: translateY(-2px); box-shadow: var(--shadow-pop);
+  border-color: hsl(var(--h) 55% 55% / .4);
+}
+
+/* role-derived states (no new logic): `.muted` = project not in the
+   effective role (FoldersRow's visibility set); `.on` = project filter active */
+.rm .folder-card.muted { opacity: .5; }
+.rm .folder-card.muted:hover { opacity: .75; }
+.rm .folder-card.on {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent), var(--shadow-card);
+}
+
+.rm .fc-head { display: flex; align-items: center; gap: 11px; }
+.rm .fc-icon {
+  width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0;
+  display: grid; place-items: center;
+  color: hsl(var(--h) 52% 40%);
+  background: hsl(var(--h) 60% 50% / .14);
+  border: 1px solid hsl(var(--h) 50% 50% / .2);
+}
+.rm[data-theme="summit"] .fc-icon { color: hsl(var(--h) 75% 72%); background: hsl(var(--h) 60% 50% / .18); }
+.rm[data-theme="fieldguide"] .fc-icon { border-radius: 50%; }
+.rm .fc-icon svg { width: 16px; height: 16px; }
+.rm .fc-titles { min-width: 0; flex: 1; }
+.rm .fc-name {
+  display: block; font-family: var(--display); font-size: 16px; font-weight: 600;
+  color: var(--ink); letter-spacing: -0.01em; line-height: 1.15;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.rm[data-theme="fieldguide"] .fc-name { font-weight: 400; font-size: 21px; line-height: 1.05; }
+.rm .fc-sub {
+  display: block; margin-top: 2px;
+  font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); letter-spacing: 0.02em;
+}
+
+@media (max-width: 768px) {
+  .rm .focus-grid { grid-template-columns: 1fr; gap: 14px; }
+}
