@@ -1,8 +1,10 @@
 import { useEffect } from 'react'
 import { useStore } from './store/useStore.ts'
 import { useNow } from './hooks/useNow.ts'
+import { useEffectiveRoleId } from './hooks/useEffectiveRoleId.ts'
 import { Header } from './features/header/Header.tsx'
 import { RolesTier } from './features/roles-tier/RolesTier.tsx'
+import { Subbar } from './features/subbar/Subbar.tsx'
 import { FoldersRow } from './features/folders/FoldersRow.tsx'
 import { Tree } from './features/tree/Tree.tsx'
 import { TodaysLog } from './features/log/TodaysLog.tsx'
@@ -21,70 +23,66 @@ export default function App() {
 
   useNow()
 
+  // Step 2: data-role now tracks the effective (single) focused role — the
+  // hybrid model's source of truth (manual selectRole > schedule default), via
+  // the shared hook. effectiveRoleId always returns one of
+  // attackers/midplayers/defenders, matching the [data-role] tokens in index.css
+  // (replaces the Step 1 hardcoded data-role="attackers").
+  const role = useEffectiveRoleId()
+
   // A load failure (no data yet) gets the full error screen. A failed mutation
   // after data is loaded must NOT blank the tree — it surfaces as a dismissible
   // banner while the optimistic rollback keeps the tree intact.
   const loadFailed = !!error && !hasData
 
   return (
-    // ── Step 1 foundation flip ──────────────────────────────────────────────
-    // The app root now carries `.rm` + the redesign's token context.
-    //  • data-theme="trailhead": confirmed app default; activates the full
-    //    [data-theme] variable set in index.css (previously dead CSS).
-    //  • data-role="attackers": HARDCODED this slice. The store has no single
-    //    active-role yet — only activeRoleIds() (a time-based Set). The single
-    //    active-role view state lands in Step 2 (role chips), where this
-    //    becomes data-role={activeRole}. Keep the value one of
-    //    attackers/midplayers/defenders so it matches index.css [data-role].
-    // `.rm-scroll` is the height-constrained inner scroll region; the portaled
-    // mobile filter sheet and DebugTimeSlider sit on `.rm` itself, outside it.
-    // The inner `.frame/.topbar/.main/.empty` classes are the old lattice
-    // shell (dead CSS now) — re-skinned in Steps 2–5, left untouched here.
-    <div className="rm" data-theme="trailhead" data-role="attackers">
+    // The redesign shell: `.rm` is the token + positioning context; `.rm-scroll`
+    // is the height-constrained inner scroll region. `.rm-header` is sticky
+    // INSIDE `.rm-scroll`; `.rm-pad` is the scrolling body. The portaled mobile
+    // filter sheet and DebugTimeSlider sit on `.rm` itself, outside the scroll.
+    <div className="rm" data-theme="trailhead" data-role={role}>
       <div className="rm-scroll">
-        <div className="frame">
-          <header className="topbar">
-            <Header />
-            <RolesTier />
-            <FoldersRow />
-          </header>
-          <main className="main">
-            {loading ? (
-              <div className="empty">
-                <h2>Loading…</h2>
-              </div>
-            ) : loadFailed ? (
-              <div className="empty">
-                <h2>Couldn't load tasks</h2>
-                <p>{error}</p>
-              </div>
-            ) : (
-              <>
-                {error && (
-                  // .err-banner markup contract (index.css): icon + msg +
-                  // dismiss. Retry is deferred to Step 5. Copy reflects the
-                  // optimistic rollback — the failed edit is reverted, not
-                  // "kept locally".
-                  <div className="err-banner" role="alert">
-                    <span className="eb-icon" aria-hidden="true">⚠</span>
-                    <span className="eb-msg">
-                      Couldn't save that change — it's been undone.
-                    </span>
-                    <button
-                      type="button"
-                      className="eb-dismiss"
-                      onClick={() => clearError()}
-                    >
-                      Dismiss
-                    </button>
-                  </div>
-                )}
-                <Tree />
-                <TodaysLog />
-              </>
-            )}
-          </main>
-        </div>
+        <header className="rm-header">
+          <Header />
+          <RolesTier />
+          <Subbar />
+        </header>
+        <main className="rm-pad">
+          {loading ? (
+            <div className="empty">
+              <h2>Loading…</h2>
+            </div>
+          ) : loadFailed ? (
+            <div className="empty">
+              <h2>Couldn't load tasks</h2>
+              <p>{error}</p>
+            </div>
+          ) : (
+            <>
+              {error && (
+                // .err-banner markup contract (index.css): icon + msg + dismiss.
+                // Retry is deferred to Step 5. Copy reflects the optimistic
+                // rollback — the failed edit is reverted, not "kept locally".
+                <div className="err-banner" role="alert">
+                  <span className="eb-icon" aria-hidden="true">⚠</span>
+                  <span className="eb-msg">
+                    Couldn't save that change — it's been undone.
+                  </span>
+                  <button
+                    type="button"
+                    className="eb-dismiss"
+                    onClick={() => clearError()}
+                  >
+                    Dismiss
+                  </button>
+                </div>
+              )}
+              <FoldersRow />
+              <Tree />
+              <TodaysLog />
+            </>
+          )}
+        </main>
       </div>
       <DebugTimeSlider />
     </div>

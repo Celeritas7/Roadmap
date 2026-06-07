@@ -144,6 +144,133 @@ body {
 .rm[data-theme="summit"][data-role="defenders"]  { --canvas: #0a0b13; }
 
 /* ════════════════════════════════════════════════════════════════════
+   STEP 2 SHELL — sticky header, role tier (daypart + role chips), subbar.
+   Additive to the foundation: reuses its tokens, the data-role personality
+   wash above, and the Slice-1 .rm-btn / .rm-clear / .filterwrap / .badge
+   affordances (NOT redefined here). Per-chip hue comes from an inline
+   `--h` set by RoleChip; role-tier accent/canvas tints already live above.
+   Mobile uses the foundation's @media(max-width:768px) breakpoint (not the
+   prototype's data-vp), so it composes with the existing filter-sheet rules.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* content region below the sticky header (horizontal rhythm matches header) */
+.rm .rm-pad { padding: 0 28px 96px; }
+
+/* ─── sticky HEADER — anchored in .rm-scroll (the height-constrained root) ─── */
+.rm .rm-header {
+  position: sticky; top: 0; z-index: 6;
+  background: color-mix(in srgb, var(--canvas) 86%, transparent);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  border-bottom: 1px solid var(--rule);
+  padding: 18px 28px 0;
+}
+.rm .rm-toprow { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.rm .rm-brand { display: flex; align-items: baseline; gap: 11px; min-width: 0; }
+.rm .rm-mark {
+  font-family: var(--display); font-weight: 600; letter-spacing: -0.02em;
+  font-size: 22px; line-height: 1; color: var(--ink); margin: 0;
+  display: flex; align-items: center; gap: 9px;
+}
+.rm[data-theme="fieldguide"] .rm-mark { font-weight: 400; font-size: 28px; letter-spacing: 0; }
+.rm .rm-mark .glyph {
+  width: 22px; height: 22px; flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.rm .rm-mark .glyph svg { width: 100%; height: 100%; }
+.rm .rm-kbd { font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); letter-spacing: 0.02em; }
+.rm .rm-meta { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.rm .rm-datepill {
+  font-family: var(--mono); font-size: 11.5px; color: var(--ink-2);
+  background: var(--panel); border: 1px solid var(--rule-strong);
+  padding: 5px 11px; border-radius: 7px; font-feature-settings: "tnum"; white-space: nowrap;
+}
+.rm .rm-week { font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); }
+
+/* personality tagline — colored by --role-h from the data-role wash above */
+.rm .rm-mood {
+  font-size: 12px; font-style: italic; color: hsl(var(--role-h, 220) 46% 46%);
+  letter-spacing: .005em; transition: color .3s;
+}
+.rm[data-theme="summit"] .rm-mood { color: hsl(var(--role-h, 220) 62% 72%); }
+.rm[data-theme="fieldguide"] .rm-mood { font-family: var(--display); font-style: italic; font-size: 14px; }
+
+/* ─── ROLE TIER (daypart marker + role chips) ─── */
+.rm .rm-roles { display: flex; align-items: stretch; gap: 8px; padding: 13px 0 14px; }
+.rm .daypart {
+  display: flex; align-items: center; gap: 9px; padding-right: 14px;
+  margin-right: 4px; border-right: 1px solid var(--rule); flex-shrink: 0;
+}
+.rm .daypart .dp-glyph {
+  font-size: 17px; line-height: 1; color: var(--accent);
+  width: 26px; height: 26px; display: grid; place-items: center;
+  border-radius: 8px; background: var(--accent-soft);
+}
+.rm .daypart .dp-meta { display: flex; flex-direction: column; line-height: 1.25; }
+.rm .daypart .dp-now { font-size: 12.5px; font-weight: 600; color: var(--ink); }
+.rm .daypart .dp-h { font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); font-feature-settings: "tnum"; }
+
+.rm .role-chip {
+  appearance: none; cursor: pointer; font: inherit; text-align: left;
+  background: var(--panel); border: 1px solid var(--rule);
+  border-radius: 11px; padding: 8px 13px 8px 11px; flex-shrink: 0;
+  display: flex; align-items: center; gap: 10px;
+  transition: transform .14s, border-color .14s, background .14s, box-shadow .14s, opacity .14s;
+}
+.rm .role-chip:hover { border-color: var(--rule-strong); transform: translateY(-1px); }
+.rm .role-chip .rc-badge {
+  width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0;
+  display: grid; place-items: center;
+  font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: 0.02em;
+  background: hsl(var(--h) 60% 50% / .13); color: hsl(var(--h) 55% 42%);
+  border: 1px solid hsl(var(--h) 50% 50% / .22);
+}
+.rm[data-theme="summit"] .role-chip .rc-badge { color: hsl(var(--h) 75% 72%); background: hsl(var(--h) 60% 55% / .16); }
+.rm .role-chip .rc-text { display: flex; flex-direction: column; line-height: 1.2; }
+.rm .role-chip .rc-name { font-size: 13.5px; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; }
+.rm .role-chip .rc-sub { font-family: var(--mono); font-size: 10px; color: var(--ink-3); letter-spacing: 0.01em; }
+.rm .role-chip .rc-mini { font-family: var(--mono); font-size: 9.5px; color: var(--ink-3); font-feature-settings: "tnum"; margin-left: 2px; }
+.rm .role-chip.active {
+  border-color: hsl(var(--h) 55% 50% / .5);
+  box-shadow: 0 0 0 1px hsl(var(--h) 55% 50% / .35), var(--shadow-card);
+  background: hsl(var(--h) 60% 50% / .05);
+}
+.rm[data-theme="summit"] .role-chip.active { background: hsl(var(--h) 60% 50% / .1); }
+/* #fff here is an intentional contrast constant: white-on-saturated-hue reads
+   in all three directions — --on-accent flips dark in summit, which is wrong
+   against this filled hued badge. The one non-token color in the section. */
+.rm .role-chip.active .rc-badge { background: hsl(var(--h) 60% 50%); color: #fff; border-color: transparent; }
+.rm[data-theme="summit"] .role-chip.active .rc-badge { box-shadow: 0 0 14px hsl(var(--h) 70% 55% / .6); }
+.rm .role-chip.idle { opacity: 0.62; }
+.rm .role-chip.idle:hover { opacity: 0.9; }
+
+/* ─── SUBBAR (view title · filter · clear) — filter/clear styles inherited ─── */
+.rm .rm-subbar { display: flex; align-items: center; gap: 12px; padding: 4px 0 16px; }
+.rm .rm-viewtitle {
+  display: flex; align-items: center; gap: 9px; min-width: 0;
+  font-family: var(--display); font-size: 14px; font-weight: 600; color: var(--ink); letter-spacing: -0.01em;
+}
+.rm[data-theme="fieldguide"] .rm-viewtitle { font-family: var(--ui); font-weight: 700; }
+.rm .rm-viewtitle .vt-back {
+  appearance: none; border: 1px solid var(--rule-strong); background: var(--panel);
+  cursor: pointer; color: var(--ink-2); border-radius: 7px; width: 28px; height: 28px;
+  display: grid; place-items: center; transition: all .12s;
+}
+.rm .rm-viewtitle .vt-back:hover { color: var(--ink); border-color: var(--ink-3); }
+.rm .rm-viewtitle .vt-crumb { color: var(--ink-3); font-family: var(--mono); font-size: 11px; font-weight: 400; }
+.rm .rm-tools { margin-left: auto; display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+/* Step 2 shell — mobile (matches the foundation's filter-sheet breakpoint) */
+@media (max-width: 768px) {
+  .rm .rm-pad { padding: 0 16px 120px; }
+  .rm .rm-header { padding: 18px 16px 0; }
+  .rm .rm-kbd, .rm .rm-week, .rm .rm-mood { display: none; }
+  .rm .rm-roles { overflow-x: auto; scrollbar-width: none; padding: 12px 0 13px; }
+  .rm .rm-roles::-webkit-scrollbar { display: none; }
+  .rm .role-chip .rc-mini { display: none; }
+}
+
+/* ════════════════════════════════════════════════════════════════════
    SLICE 1 COMPONENTS — filter (popover/sheet), priority dim, error banner.
    (Surrounding shell — header, subbar, route map — arrives in later steps;
    the route map is what emits `.rt-row.dimmed`.)

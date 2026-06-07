@@ -87,6 +87,10 @@ export type Role = {
   id: string
   label: string
   subtitle: string
+  // Journey-UI display constants (never persisted): `badge` is the mono
+  // FWD/MID/DEF tag on the role chip; `mood` is the header tagline.
+  badge: string
+  mood: string
   hue: number
   defaultStart: number
   defaultEnd: number

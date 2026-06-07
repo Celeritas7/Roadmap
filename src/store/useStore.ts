@@ -16,6 +16,7 @@ import type {
 import { supabase } from '../lib/supabase.ts'
 import { seedIfEmpty } from '../seed.ts'
 import { subtreeIds } from '../lib/tree.ts'
+import { activeRoleIds, isRoleActive, effectiveRoleId } from './selectors.ts'
 import * as sync from './sync.ts'
 
 export type StoreState = {
@@ -27,6 +28,10 @@ export type StoreState = {
   // Client-only
   filters: FilterState
   now: NowState
+  // Ephemeral focus: which single role the journey UI is viewing. null ⇒ the
+  // schedule picks the default (see effectiveRoleId). Deliberately NOT in
+  // `settings`/persisted — on reload the schedule re-derives it.
+  selectedRole: string | null
 
   initialized: boolean
   loading: boolean
@@ -48,6 +53,7 @@ export type StoreState = {
   cycleRole: (roleId: string) => Promise<void>
   setLocation: (location: Location) => void
   setHour: (hour: number) => void
+  selectRole: (roleId: string) => void
 }
 
 function defaultNow(): NowState {
@@ -81,6 +87,7 @@ export const useStore = create<StoreState>((set, get) => ({
   settings: null,
   filters: { projects: new Set(), contexts: new Set() },
   now: defaultNow(),
+  selectedRole: null,
   initialized: false,
   loading: true,
   error: null,
@@ -264,6 +271,13 @@ export const useStore = create<StoreState>((set, get) => ({
   setHour: (hour) => {
     set({ now: { ...get().now, hour } })
   },
+
+  // Pin the journey focus to one role. Toggles: clicking the already-pinned
+  // role un-pins it (selectedRole → null), handing focus back to the schedule
+  // default (see effectiveRoleId). Ephemeral — never written to settings.
+  selectRole: (roleId) => {
+    set({ selectedRole: get().selectedRole === roleId ? null : roleId })
+  },
 }))
 
 function errorMessage(e: unknown): string {
@@ -272,7 +286,16 @@ function errorMessage(e: unknown): string {
 }
 
 // Expose the store on `window.__roadmapStore` in dev so Playwright (and the
-// DevTools console) can drive state without going through the UI.
+// DevTools console) can drive state without going through the UI. The role
+// selectors are exposed too (`__roadmapSelectors`) so a verify harness can log
+// the schedule's active-role set directly — proving the schedule/override path
+// (activeRoleIds / isRoleActive) still computes even though the hybrid UI only
+// drives single-role selection.
 if (import.meta.env.DEV) {
-  ;(globalThis as unknown as { __roadmapStore: typeof useStore }).__roadmapStore = useStore
+  const g = globalThis as unknown as {
+    __roadmapStore: typeof useStore
+    __roadmapSelectors: { activeRoleIds: typeof activeRoleIds; isRoleActive: typeof isRoleActive; effectiveRoleId: typeof effectiveRoleId }
+  }
+  g.__roadmapStore = useStore
+  g.__roadmapSelectors = { activeRoleIds, isRoleActive, effectiveRoleId }
 }
