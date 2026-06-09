@@ -465,3 +465,104 @@ body {
 @media (max-width: 768px) {
   .rm .focus-grid { grid-template-columns: 1fr; gap: 14px; }
 }
+
+/* ════════════════════════════════════════════════════════════════════
+   STEP 4 · PHASE 1 — ROUTE STOPS (row → [rail | body])
+   ─────────────────────────────────────────────────────────────────────
+   Each task row is a "stop" on the route: a station node (the restyled
+   done checkbox) seated on a vertical spine that runs down the rail
+   column. Trailhead/default treatment ONLY — summit/fieldguide tints and
+   mobile land in Phase 3; Group.tsx (the per-section frame) is untouched.
+
+   Additive: `.rows` / `.row` / `.rail` were unstyled before this phase,
+   so these override nothing. The spine is a STATIC role-tinted line — no
+   progress fill, no next/waypoint state (that is V2-A). Tokens + --role-h
+   only; stations sit on `--panel` above the line (z-index) so it passes
+   behind them, reading as stops threaded on one route.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* HEAD — the route geometry (authored this phase) */
+
+/* the route container anchors the spine; relative is required for ::before */
+.rm .rows { position: relative; }
+/* spine: one soft vertical line down the rail centre (~26px), role-tinted.
+   Inset 28px top/bottom = half a row, so it runs first-station→last-station
+   centre rather than overshooting the column ends. */
+.rm .rows::before {
+  content: ''; position: absolute; left: 25px; top: 28px; bottom: 28px; width: 2px;
+  background: hsl(var(--role-h, 220) 45% 60% / .24); border-radius: 2px;
+  pointer-events: none;
+}
+
+/* a stop: flex [rail | body]. position:relative anchors the absolute .grip;
+   min-height gives the station room and sets the spine's vertical rhythm. */
+.rm .row {
+  position: relative; display: flex; align-items: stretch;
+  min-height: 56px;
+}
+
+/* the spine column: 52px wide centres the 22px station on the line at 26px,
+   and leaves the absolute grip (left 2px, ends 18px; centre 10px) clear of
+   the station (15–37px) so neither occludes the other's hit area. */
+.rm .rail {
+  position: relative; flex-shrink: 0; width: 52px;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* TAIL — station, grip, body, tags, row actions (reviewed/approved) */
+
+  .rm .row .grip {
+    position: absolute; left: 2px; top: 50%; transform: translateY(-50%);
+    display: grid; place-items: center; width: 16px; height: 30px;
+    color: var(--ink-4); font-size: 11px; line-height: 1; letter-spacing: -1px;
+    opacity: 0; transition: opacity .14s, color .14s;
+  }
+  .rm .row:hover .grip { opacity: .65; }
+  .rm .row .grip:hover { opacity: 1; color: var(--ink-3); }
+  .rm .row .check.station {
+    appearance: none; padding: 0; margin: 0;
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 2px solid var(--ink-4); background: var(--panel);
+    position: relative; z-index: 1;
+    transition: border-color .14s, background .14s;
+  }
+  .rm .row .check.station:hover { border-color: var(--accent); }
+  .rm .row .check.station.done { border-color: var(--accent); background: var(--accent); }
+  .rm .row .check.station.done::after {
+    content: '✓'; position: absolute; inset: 0; display: grid; place-items: center;
+    font-size: 12px; font-weight: 700; line-height: 1; color: var(--on-accent);
+  }
+  .rm .row .body {
+    flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px;
+    padding: 8px 8px 8px 0;
+  }
+  .rm .row .title-c {
+    flex: 1; min-width: 0;
+    font-family: var(--display); font-size: 13.5px; color: var(--ink); letter-spacing: -0.01em;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .rm .row.done .title-c {
+    color: var(--ink-3); text-decoration: line-through; text-decoration-color: var(--ink-4);
+  }
+  .rm .row .tags { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+  .rm .row .tag {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.02em;
+    padding: 2px 7px; border-radius: 5px; white-space: nowrap;
+  }
+  .rm .row .tag.proj {
+    color: hsl(var(--h) 45% 38%); background: hsl(var(--h) 60% 50% / .12);
+    border: 1px solid hsl(var(--h) 50% 50% / .22);
+  }
+  .rm .row .tag.proj .pdot { width: 6px; height: 6px; border-radius: 50%; background: hsl(var(--h) 60% 50%); }
+  .rm .row .tag.ctx { color: var(--ink-3); background: var(--panel-2); border: 1px solid var(--rule); }
+  .rm .row .tag.ctx .at { color: var(--ink-4); }
+  .rm .row .rowedit, .rm .row .rowdel {
+    appearance: none; border: 0; background: transparent; cursor: pointer;
+    flex-shrink: 0; width: 26px; height: 26px; border-radius: 6px;
+    display: grid; place-items: center; font-size: 13px; line-height: 1; color: var(--ink-3);
+    opacity: 0; transition: opacity .14s, background .14s, color .14s;
+  }
+  .rm .row:hover .rowedit, .rm .row:hover .rowdel { opacity: 1; }
+  .rm .row .rowedit:hover { color: var(--ink); background: var(--hover); }
+  .rm .row .rowdel:hover { color: #d23; background: hsl(0 70% 50% / .1); }
