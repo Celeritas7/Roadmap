@@ -566,3 +566,64 @@ body {
   .rm .row:hover .rowedit, .rm .row:hover .rowdel { opacity: 1; }
   .rm .row .rowedit:hover { color: var(--ink); background: var(--hover); }
   .rm .row .rowdel:hover { color: #d23; background: hsl(0 70% 50% / .1); }
+
+/* ════════════════════════════════════════════════════════════════════
+   STEP 4 · PHASE 2 — ROUTE SEGMENTS (group → section frame)
+   ─────────────────────────────────────────────────────────────────────
+   Each top-level group is a "segment" of the route: a header band over
+   its stops. Reskin only — Group.tsx structure/drag/toggle/add/delete are
+   unchanged. Trailhead/default tints only; summit/fieldguide + mobile in
+   Phase 3. .addrow is intentionally left unstyled (deferred to Phase 3).
+
+   Drag-safety: .ghead stays in static flex flow — no sticky/z-index/
+   overlay/pointer-events — so it cannot intercept a drag begun on a
+   child .grip. (Drag verified preserved at the P2 gate.)
+   ════════════════════════════════════════════════════════════════════ */
+
+/* segment frame — depth-0 groups breathe; nested groups indent (inset) */
+.rm .group.depth-0 { margin-top: 24px; }
+.rm .group.depth-0:first-child { margin-top: 0; }
+.rm .group .group { margin-left: 14px; }
+
+/* HEAD — clickable band, static flow */
+.rm .ghead {
+  display: flex; align-items: center; gap: 10px;
+  padding: 6px 4px; cursor: pointer; user-select: none;
+}
+.rm .ghead h2 {
+  margin: 0; font-family: var(--display); font-size: 14px;
+  letter-spacing: -0.01em; color: var(--ink);
+}
+/* chevron — down when open, rotates right when collapsed */
+.rm .ghead .twist { color: var(--ink-4); font-size: 11px; line-height: 1; transition: transform .14s; }
+.rm .ghead.col .twist { transform: rotate(-90deg); }
+
+/* meta — done/total + (depth-0 only) slim indicator */
+.rm .ghead .meta {
+  margin-left: auto; display: flex; align-items: center; gap: 10px;
+  font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); letter-spacing: 0.02em;
+}
+/* .bar — modest per-segment indicator (56x4), NOT a route fill. Reads the
+   inline --pct that Group.tsx sets from the existing done/total. */
+.rm .ghead .bar {
+  width: 56px; height: 4px; border-radius: 2px;
+  background: var(--rule-strong); position: relative; overflow: hidden;
+}
+.rm .ghead .bar::after {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: var(--pct, 0%); background: hsl(var(--role-h, 220) 45% 55%); border-radius: 2px;
+}
+
+/* gdel — hover-revealed, mirrors row actions */
+.rm .ghead .gdel {
+  appearance: none; border: 0; background: transparent; cursor: pointer;
+  width: 24px; height: 24px; border-radius: 6px;
+  display: grid; place-items: center; font-size: 15px; line-height: 1; color: var(--ink-4);
+  opacity: 0; transition: opacity .14s, background .14s, color .14s;
+}
+.rm .ghead:hover .gdel { opacity: 1; }
+.rm .ghead .gdel:hover { color: #d23; background: hsl(0 70% 50% / .1); }
+
+/* nested-spine de-dup: a .rows holding sub-groups draws no spine of its own
+   (each sub-group draws one); leaf .rows (tasks only) keep theirs. */
+.rm .rows:has(> .group)::before { content: none; }
