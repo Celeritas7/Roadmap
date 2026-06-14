@@ -627,3 +627,15 @@ body {
 /* nested-spine de-dup: a .rows holding sub-groups draws no spine of its own
    (each sub-group draws one); leaf .rows (tasks only) keep theirs. */
 .rm .rows:has(> .group)::before { content: none; }
+
+/* ════════════════════════════════════════════════════════════════════
+   STEP 4 · PHASE 3 — route mobile (touch affordances)
+   ─────────────────────────────────────────────────────────────────────
+   .grip / .rowedit / .rowdel are hover-revealed (opacity:0) and can't be
+   reached without a pointer; restore them at the foundation breakpoint.
+   .gdel (IRREVERSIBLE group-delete) intentionally stays hidden on touch.
+   ════════════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .rm .row .grip { opacity: .5; }
+  .rm .row .rowedit, .rm .row .rowdel { opacity: 1; }
+}
