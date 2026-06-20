@@ -19,6 +19,8 @@ import { subtreeIds } from '../lib/tree.ts'
 import { activeRoleIds, isRoleActive, effectiveRoleId } from './selectors.ts'
 import * as sync from './sync.ts'
 
+export type ThemeName = 'trailhead' | 'summit' | 'fieldguide'
+
 export type StoreState = {
   // Server-mirrored
   tree: TaskRow[]
@@ -32,6 +34,9 @@ export type StoreState = {
   // schedule picks the default (see effectiveRoleId). Deliberately NOT in
   // `settings`/persisted — on reload the schedule re-derives it.
   selectedRole: string | null
+
+  // Device-local UI preference — persisted to localStorage, never synced.
+  theme: ThemeName
 
   initialized: boolean
   loading: boolean
@@ -54,6 +59,7 @@ export type StoreState = {
   setLocation: (location: Location) => void
   setHour: (hour: number) => void
   selectRole: (roleId: string) => void
+  setTheme: (t: ThemeName) => void
 }
 
 function defaultNow(): NowState {
@@ -81,6 +87,18 @@ function nextOverride(current: RoleOverride | undefined): RoleOverride {
   return 'auto'
 }
 
+const THEMES: ThemeName[] = ['trailhead', 'summit', 'fieldguide']
+
+function readStoredTheme(): ThemeName {
+  try {
+    const t = localStorage.getItem('rm-theme')
+    if (t && (THEMES as string[]).includes(t)) return t as ThemeName
+  } catch {
+    /* localStorage unavailable — fall through to default */
+  }
+  return 'trailhead'
+}
+
 export const useStore = create<StoreState>((set, get) => ({
   tree: [],
   log: [],
@@ -88,6 +106,7 @@ export const useStore = create<StoreState>((set, get) => ({
   filters: { projects: new Set(), contexts: new Set() },
   now: defaultNow(),
   selectedRole: null,
+  theme: readStoredTheme(),
   initialized: false,
   loading: true,
   error: null,
@@ -170,6 +189,11 @@ export const useStore = create<StoreState>((set, get) => ({
   },
 
   clearError: () => set({ error: null }),
+
+  setTheme: (t) => {
+    set({ theme: t })
+    try { localStorage.setItem('rm-theme', t) } catch { /* ignore persist failure */ }
+  },
 
   toggleGroup: async (id) => {
     const target = get().tree.find((t) => t.id === id)

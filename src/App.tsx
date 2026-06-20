@@ -16,6 +16,7 @@ export default function App() {
   const error = useStore((s) => s.error)
   const hasData = useStore((s) => s.tree.length > 0)
   const clearError = useStore((s) => s.clearError)
+  const theme = useStore((s) => s.theme)
 
   useEffect(() => {
     void init()
@@ -40,7 +41,7 @@ export default function App() {
     // is the height-constrained inner scroll region. `.rm-header` is sticky
     // INSIDE `.rm-scroll`; `.rm-pad` is the scrolling body. The portaled mobile
     // filter sheet and DebugTimeSlider sit on `.rm` itself, outside the scroll.
-    <div className="rm" data-theme="trailhead" data-role={role}>
+    <div className="rm" data-theme={theme} data-role={role}>
       <div className="rm-scroll">
         <header className="rm-header">
           <Header />
