@@ -282,7 +282,7 @@ body {
 @media (max-width: 768px) {
   .rm .rm-pad { padding: 0 16px 120px; }
   .rm .rm-header { padding: 18px 16px 0; }
-  .rm .rm-kbd, .rm .rm-week, .rm .rm-mood { display: none; }
+  .rm .rm-kbd, .rm .rm-week, .rm .rm-mood, .rm .rm-datepill { display: none; }
   .rm .rm-roles { overflow-x: auto; scrollbar-width: none; padding: 12px 0 13px; }
   .rm .rm-roles::-webkit-scrollbar { display: none; }
   .rm .role-chip .rc-mini { display: none; }
