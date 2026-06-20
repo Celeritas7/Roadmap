@@ -6,10 +6,10 @@ export function DaypartPill() {
   const daypart = getDaypart(now.hour)
   return (
     <div className="daypart">
-      <span className="em">{daypart.emoji}</span>
-      <div className="meta">
-        <span className="now">{daypart.label}</span>
-        <span className="h">
+      <span className="dp-glyph">{daypart.emoji}</span>
+      <div className="dp-meta">
+        <span className="dp-now">{daypart.label}</span>
+        <span className="dp-h">
           {formatHour12(now.hour)}
           {now.weekend ? ' · weekend' : ''}
         </span>

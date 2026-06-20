@@ -3,15 +3,15 @@ import type { Config } from 'tailwindcss'
 /**
  * Roadmap — "Journey" redesign · Tailwind theme.
  * Colors resolve from CSS variables defined in src/index.css (see the
- * [data-theme] / [data-role] blocks). Swapping data-theme or data-role on
- * the app root re-points every token automatically.
+ * :root / [data-theme] / [data-role] blocks). Swapping data-theme or
+ * data-role on the app root re-points every token automatically.
  */
 export default {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
   theme: {
     extend: {
       fontFamily: {
-        // headings (trailhead + summit). fieldguide overrides to serif in CSS.
+        // headings (trailhead + summit). fieldguide overrides to `serif` in CSS.
         display: ['"Space Grotesk"', 'system-ui', 'sans-serif'],
         // editorial display (fieldguide)
         serif: ['"Instrument Serif"', 'Georgia', 'serif'],

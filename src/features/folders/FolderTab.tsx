@@ -28,7 +28,12 @@ type Props = {
 
 export function FolderTab({ project, count, muted, on, onClick }: Props) {
   const style = { '--h': project.hue } as CSSProperties
-  const className = 'folder' + (muted ? ' muted' : '') + (on ? ' on' : '')
+  const className = 'folder-card' + (muted ? ' muted' : '') + (on ? ' on' : '')
+  // Step 3 (minimal): card chrome + head only. `count` is the real total of
+  // tasks tagged with this project (countTasksWithTag) — rendered as the
+  // sub-line "N stops". A done/total split, route track, next-stop panel and
+  // footer are V2-A and intentionally absent here.
+  const stops = `${count} ${count === 1 ? 'stop' : 'stops'}`
   return (
     <button
       type="button"
@@ -37,9 +42,17 @@ export function FolderTab({ project, count, muted, on, onClick }: Props) {
       onClick={onClick}
       title={muted ? `${project.label} — role muted` : project.label}
     >
-      <FolderIcon />
-      <span>{project.label}</span>
-      <span className="fcount">{count}</span>
+      <div className="fc-head">
+        <span className="fc-icon">
+          <FolderIcon />
+        </span>
+        <div className="fc-titles">
+          <span className="fc-name">{project.label}</span>
+          <span className="fc-sub">
+            {project.short} · {stops}
+          </span>
+        </div>
+      </div>
     </button>
   )
 }

@@ -1,27 +1,25 @@
 import { useStore } from '../../store/useStore.ts'
 import { PROJECTS } from '../../seed.ts'
-import { activeRoleIds, visibleProjectIds } from '../../store/selectors.ts'
+import { visibleProjectIds } from '../../store/selectors.ts'
+import { useEffectiveRoleId } from '../../hooks/useEffectiveRoleId.ts'
 import { countTasksWithTag } from '../../lib/tree.ts'
 import { FolderTab } from './FolderTab.tsx'
-import { FilterPopover } from './FilterPopover.tsx'
 
 export function FoldersRow() {
   const tree = useStore((s) => s.tree)
-  const now = useStore((s) => s.now)
-  const settings = useStore((s) => s.settings)
   const filters = useStore((s) => s.filters)
   const toggleFilter = useStore((s) => s.toggleFilter)
-  const clearFilters = useStore((s) => s.clearFilters)
+  const effId = useEffectiveRoleId()
 
-  const overrides = settings?.role_overrides ?? {}
-  const active = activeRoleIds(now, overrides)
-  const visible = visibleProjectIds(active)
-  const totalActive = filters.projects.size + filters.contexts.size
+  // Single-focus visibility: only the effective (focused) role's projects are
+  // un-muted — was the schedule's active-role union. The filter trigger + Clear
+  // now live in the Subbar (one filter button), so this row is folder tabs only.
+  const visible = visibleProjectIds(new Set([effId]))
 
   return (
     <div className="fbar">
-      <div className="folders">
-        <span className="flabel">Folders</span>
+      <span className="flabel">Folders</span>
+      <div className="focus-grid">
         {PROJECTS.map((p) => (
           <FolderTab
             key={p.id}
@@ -32,17 +30,6 @@ export function FoldersRow() {
             onClick={() => toggleFilter('project', p.id)}
           />
         ))}
-      </div>
-      <div className="ftools">
-        <FilterPopover />
-        <button
-          type="button"
-          className="clear"
-          disabled={totalActive === 0}
-          onClick={clearFilters}
-        >
-          {totalActive ? `Clear (${totalActive})` : 'Clear'}
-        </button>
       </div>
     </div>
   )

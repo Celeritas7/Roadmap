@@ -29,6 +29,18 @@ Items deliberately cut from v1 to keep the first ship surface small. Listed here
 - **Past-day navigation** — v1 renders `log_date = today` only; no date picker / history view.
 - **Per-task log history** and **analytics/totals** (e.g. time-per-tag rollups).
 
+## Journey redesign — deferred from the Step 2 role-tier rework
+
+- **Re-expose the role override control** — `cycleRole` / `role_overrides` /
+  `isRoleActive` / `activeRoleIds` are all preserved in code, but the journey UI's
+  only chip gesture is single-role *selection* (`selectRole`). The auto/on/off
+  override cycle has no UI trigger anymore. Re-surface it (e.g. long-press or a
+  settings affordance) if manual schedule overrides are needed again.
+- **Optional on-duty indicator on role chips** — chip state is binary
+  (active = the selected/effective role, idle = all others). The schedule's
+  multi-role active set (`activeRoleIds`) no longer shows any per-chip cue. Add a
+  marker for schedule-active-but-unselected roles if that signal is missed.
+
 ## Out of scope from the original brief
 
 - PWA (manifest, service worker, IndexedDB write queue, offline replay)

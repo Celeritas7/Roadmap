@@ -1,0 +1,145 @@
+/* ════════════════════════════════════════════════════════════════════
+   Roadmap — "Journey" redesign · foundation layer
+   Paste into src/index.css. This is the TOKEN + THEME + ROLE foundation
+   (the "step 1" of the handoff). Component CSS (folder cards, the route
+   map / road, chips, filter, log, states) lives in styles-app.css in the
+   handoff `source/` folder — port that on top, or rebuild with Tailwind.
+
+   Fonts: add this <link> to index.html <head> (or @import below):
+   https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Hanken+Grotesk:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap
+   ════════════════════════════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Hanken+Grotesk:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── shared aliases ─── */
+:root {
+  --ui: 'Hanken Grotesk', system-ui, sans-serif;
+  --display: 'Space Grotesk', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+html, body, #root { height: 100%; }
+body {
+  margin: 0;
+  background: var(--canvas, #fbfbf9);
+  color: var(--ink, #16181d);
+  font-family: var(--ui);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* The app root carries data-theme + data-role. Make it the positioning +
+   token context. (In the prototype this is `.rm`; use whatever wrapper
+   your App renders.) */
+.app-root {
+  position: relative;
+  min-height: 100%;
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--ui);
+  font-feature-settings: "ss01";
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   DIRECTIONS (data-theme)
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ── Trailhead — clean / light ── */
+[data-theme="trailhead"] {
+  --canvas: #fbfbf9;  --panel: #ffffff;  --panel-2: #f6f6f3;
+  --ink: #16181d;  --ink-2: #565a63;  --ink-3: #9a9ea7;  --ink-4: #c6c9d0;
+  --rule: #ecece8;  --rule-strong: #dedfda;  --hover: rgba(20,22,28,.04);
+  --accent: #3b6ef0;  --accent-soft: #eaf0fe;  --accent-ink: #2452cc;  --on-accent: #ffffff;
+  --shadow-card: 0 1px 2px rgba(16,18,29,.04), 0 4px 16px rgba(16,18,29,.04);
+  --shadow-pop: 0 12px 40px rgba(16,18,29,.14), 0 0 0 1px rgba(16,18,29,.05);
+  --road: #d4d7d1;  --road-edge: #c3c7c0;  --lane: #ffffff;
+}
+
+/* ── Summit — dark tactical board ── */
+[data-theme="summit"] {
+  --canvas: #0a0c10;  --panel: #14171e;  --panel-2: #1b1f28;
+  --ink: #eef1f7;  --ink-2: #a4abba;  --ink-3: #6b7280;  --ink-4: #444b57;
+  --rule: #232834;  --rule-strong: #2f3542;  --hover: rgba(255,255,255,.045);
+  --accent: #5b8cff;  --accent-soft: rgba(91,140,255,.14);  --accent-ink: #9db8ff;  --on-accent: #08111f;
+  --shadow-card: 0 1px 2px rgba(0,0,0,.4), 0 8px 28px rgba(0,0,0,.35);
+  --shadow-pop: 0 20px 60px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.06);
+  --road: #2b323f;  --road-edge: #39414f;  --lane: rgba(170,190,230,.5);
+}
+/* faint pitch grid + role-hued top glow */
+[data-theme="summit"].app-root::before {
+  content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(120% 80% at 50% -10%, hsl(var(--role-h, 220) 72% 60% / .17), transparent 60%),
+    linear-gradient(transparent 0 39px, rgba(255,255,255,.018) 39px 40px),
+    linear-gradient(90deg, transparent 0 39px, rgba(255,255,255,.018) 39px 40px);
+  background-size: auto, 40px 40px, 40px 40px;
+}
+[data-theme="summit"].app-root > * { position: relative; z-index: 1; }
+
+/* ── Field Guide — warm editorial ── */
+[data-theme="fieldguide"] {
+  --canvas: #f3ede1;  --panel: #faf6ec;  --panel-2: #f1ead9;
+  --ink: #211c14;  --ink-2: #5e564a;  --ink-3: #9b9384;  --ink-4: #c4bba8;
+  --rule: #e3dac6;  --rule-strong: #d2c6ac;  --hover: rgba(33,28,20,.04);
+  --accent: #2f64df;  --accent-soft: #e4ebfb;  --accent-ink: #244fb3;  --on-accent: #ffffff;
+  --shadow-card: 0 1px 2px rgba(80,60,30,.05), 0 6px 20px rgba(80,60,30,.06);
+  --shadow-pop: 0 16px 48px rgba(80,60,30,.18), 0 0 0 1px rgba(80,60,30,.07);
+  --road: #dccfb2;  --road-edge: #cbbd9b;  --lane: #fcf8ef;
+}
+/* fieldguide uses the serif for display headings */
+[data-theme="fieldguide"] { --display: 'Instrument Serif', Georgia, serif; }
+
+/* ════════════════════════════════════════════════════════════════════
+   ROLE PERSONALITY (data-role) — washes the canvas + shifts the accent.
+   Layers on top of any direction.
+   ════════════════════════════════════════════════════════════════════ */
+[data-role="attackers"]  { --role-h: 18; }   /* warm / ambitions   */
+[data-role="midplayers"] { --role-h: 158; }  /* green / life-support*/
+[data-role="defenders"]  { --role-h: 252; }  /* indigo / self-care  */
+
+[data-role] {
+  --accent: hsl(var(--role-h) 62% 50%);
+  --accent-soft: hsl(var(--role-h) 62% 55% / .12);
+  --accent-ink: hsl(var(--role-h) 52% 40%);
+  background-image: radial-gradient(135% 62% at 50% -8%, hsl(var(--role-h) 65% 52% / .14), transparent 60%);
+}
+
+/* trailhead (light): tint the off-white canvas per tier */
+[data-theme="trailhead"][data-role="attackers"]  { --canvas: #fcf7f3; }
+[data-theme="trailhead"][data-role="midplayers"] { --canvas: #f4faf6; }
+[data-theme="trailhead"][data-role="defenders"]  { --canvas: #f4f6fd; }
+
+/* field guide (warm paper): shift the paper tone + darker accent */
+[data-theme="fieldguide"][data-role] {
+  --accent: hsl(var(--role-h) 52% 44%);
+  --accent-ink: hsl(var(--role-h) 48% 36%);
+  background-image: radial-gradient(135% 62% at 50% -6%, hsl(var(--role-h) 50% 50% / .16), transparent 60%);
+}
+[data-theme="fieldguide"][data-role="attackers"]  { --canvas: #f5ecdd; }
+[data-theme="fieldguide"][data-role="midplayers"] { --canvas: #edf1e2; }
+[data-theme="fieldguide"][data-role="defenders"]  { --canvas: #eaedf3; }
+
+/* summit (dark): brighter accent, role-hued glow via ::before, tinted base */
+[data-theme="summit"][data-role] {
+  --accent: hsl(var(--role-h) 74% 66%);
+  --accent-soft: hsl(var(--role-h) 60% 52% / .18);
+  --accent-ink: hsl(var(--role-h) 78% 74%);
+  background-image: none;
+}
+[data-theme="summit"][data-role="attackers"]  { --canvas: #110c0a; }
+[data-theme="summit"][data-role="midplayers"] { --canvas: #090f0c; }
+[data-theme="summit"][data-role="defenders"]  { --canvas: #0a0b13; }
+
+/* ════════════════════════════════════════════════════════════════════
+   PER-PHASE HUE helper (for the route map). Set --h on each phase's rows:
+     phaseHue(baseHue, i) = (baseHue + [0,132,256,64,196,320][i % 6]) % 360
+   Then nodes / road / waypoint badge read hsl(var(--h) ...). Folder
+   identity hues (from seed): dx18 fullstack220 lang138 visa200 food38
+   exercise165 sleep250 fashion320.
+   ════════════════════════════════════════════════════════════════════ */
+
+::selection { background: var(--accent); color: var(--on-accent); }

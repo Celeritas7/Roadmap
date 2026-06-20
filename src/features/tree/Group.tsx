@@ -30,19 +30,16 @@ export function Group({ node, depth, dim }: Props) {
       >
         <span className="twist">▾</span>
         <h2>{node.title}</h2>
-        {depth === 0 && total > 0 && (
+        {total > 0 && (
           <span className="meta">
             <span>
               {done}/{total}
             </span>
-            <span className="bar" style={{ '--pct': `${pct}%` } as CSSProperties} />
-          </span>
-        )}
-        {depth > 0 && total > 0 && (
-          <span className="meta">
-            <span>
-              {done}/{total}
-            </span>
+            {/* depth-0 segments carry a slim progress bar; nested sub-groups
+                show the count only (reskinned chrome — same done/total). */}
+            {depth === 0 && (
+              <span className="bar" style={{ '--pct': `${pct}%` } as CSSProperties} />
+            )}
           </span>
         )}
         <button

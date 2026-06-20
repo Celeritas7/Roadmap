@@ -4,6 +4,15 @@ import { useStore } from '../../store/useStore.ts'
 import { useMediaQuery } from '../../hooks/useMediaQuery.ts'
 import { CONTEXTS_BY_FAMILY } from '../../seed.ts'
 
+// The three context families and how each behaves when active. Where/Mode
+// HIDE non-matching tasks; Priority DIMS them (~30%) but keeps them on screen.
+// (Hide/dim is enforced in store/selectors.ts → passingTaskIds.)
+const GROUPS = [
+  { family: 'where' as const, label: 'Where', mode: 'hides others' },
+  { family: 'mode' as const, label: 'Mode', mode: 'hides others' },
+  { family: 'priority' as const, label: 'Priority', mode: 'dims others' },
+]
+
 export function FilterPopover() {
   const [open, setOpen] = useState(false)
   const wrap = useRef<HTMLDivElement | null>(null)
@@ -32,79 +41,78 @@ export function FilterPopover() {
   }, [open, isMobile])
 
   // Shared panel. On desktop it renders in place (absolute popover). On mobile
-  // it's portaled (with a backdrop) into the `.lat` root — escaping the topbar's
+  // it's portaled (with a backdrop) into the `.rm` root — escaping the header's
   // `backdrop-filter`, which would otherwise be the containing block for the
-  // fixed-position sheet and anchor it to the topbar instead of the viewport.
+  // absolute-positioned sheet and anchor it to the header instead of the viewport.
   const panel = (
-    <div className="pop" role="dialog" aria-label="Filters">
-      <div className="sheethead">
-        <span className="sheettitle">Filter</span>
+    <div className="filter-pop" role="dialog" aria-label="Filters">
+      <div className="filter-head">
+        <h4>Filter</h4>
         <button
           type="button"
-          className="sheetclose"
+          className="filter-close"
           aria-label="Close filters"
           onClick={() => setOpen(false)}
         >
           ×
         </button>
       </div>
-      <PopGroup
-        label="Where"
-        items={CONTEXTS_BY_FAMILY.where}
-        activeSet={filters.contexts}
-        onToggle={(id) => toggleFilter('context', id)}
-      />
-      <PopGroup
-        label="Mode"
-        items={CONTEXTS_BY_FAMILY.mode}
-        activeSet={filters.contexts}
-        onToggle={(id) => toggleFilter('context', id)}
-      />
-      <PopGroup
-        label="Priority"
-        items={CONTEXTS_BY_FAMILY.priority}
-        activeSet={filters.contexts}
-        onToggle={(id) => toggleFilter('context', id)}
-      />
-      <div className="popfoot">
-        <span className="ct">{active === 0 ? '—' : `${active} active`}</span>
+      {GROUPS.map((g) => (
+        <div className="filter-group" key={g.family}>
+          <div className="filter-glabel">
+            {g.label}
+            <span className="tag-mode">{g.mode}</span>
+          </div>
+          <div className="filter-opts">
+            {CONTEXTS_BY_FAMILY[g.family].map((it) => (
+              <FilterChip
+                key={it.id}
+                label={it.label}
+                active={filters.contexts.has(it.id)}
+                prio={g.family === 'priority'}
+                onClick={() => toggleFilter('context', it.id)}
+              />
+            ))}
+          </div>
+        </div>
+      ))}
+      <div className="filter-foot">
+        <span className="ct">{active === 0 ? 'no filters' : `${active} active`}</span>
         <button
           type="button"
-          className="clear"
+          className="rm-clear"
           disabled={!active}
           onClick={() => {
             for (const id of Array.from(filters.contexts)) toggleFilter('context', id)
           }}
         >
-          Clear
+          Clear all
         </button>
       </div>
     </div>
   )
 
-  const portalTarget = wrap.current?.closest('.lat') ?? null
+  const portalTarget = wrap.current?.closest('.rm') ?? null
 
   return (
     <div className="filterwrap" ref={wrap}>
       <button
         type="button"
-        className={'fbtn' + (active ? ' has-active' : '') + (open ? ' open' : '')}
+        className={'rm-btn' + (active ? ' live' : '')}
+        aria-label="Filter"
         onClick={() => setOpen((o) => !o)}
       >
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
-          <path d="M2 3h8M3.5 6h5M5 9h2" />
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+          <path d="M1 3h12M3 7h8M5 11h4" />
         </svg>
         <span>Filter</span>
         {active > 0 && <span className="badge">{active}</span>}
-        <svg className="chev" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-          <path d="M2 4l3 3 3-3" />
-        </svg>
       </button>
       {open &&
         (isMobile && portalTarget
           ? createPortal(
               <>
-                <div className="popbackdrop" onClick={() => setOpen(false)} aria-hidden />
+                <div className="filter-backdrop" onClick={() => setOpen(false)} aria-hidden />
                 {panel}
               </>,
               portalTarget,
@@ -114,46 +122,24 @@ export function FilterPopover() {
   )
 }
 
-function PopGroup({
-  label,
-  items,
-  activeSet,
-  onToggle,
-}: {
-  label: string
-  items: { id: string; label: string }[]
-  activeSet: Set<string>
-  onToggle: (id: string) => void
-}) {
-  return (
-    <div className="popgroup">
-      <span className="glabel">{label}</span>
-      <div className="opts">
-        {items.map((it) => (
-          <FilterChip
-            key={it.id}
-            label={it.label}
-            active={activeSet.has(it.id)}
-            onClick={() => onToggle(it.id)}
-          />
-        ))}
-      </div>
-    </div>
-  )
-}
-
 function FilterChip({
   active,
   label,
+  prio,
   onClick,
 }: {
   active: boolean
   label: string
+  prio: boolean
   onClick: () => void
 }) {
   const at = label.startsWith('@')
   return (
-    <button type="button" className={'fchip' + (active ? ' on' : '')} onClick={onClick}>
+    <button
+      type="button"
+      className={'fchip' + (active ? ' on' : '') + (prio ? ' prio' : '')}
+      onClick={onClick}
+    >
       {at ? (
         <>
           <span className="at">@</span>

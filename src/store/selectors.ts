@@ -54,6 +54,44 @@ export function visibleProjectIds(activeRoles: Set<string>): Set<string> {
   return out
 }
 
+// ─── effective (single) role: the hybrid schedule/selection focus ─────
+// The journey UI focuses one role at a time. An explicit manual selection
+// (`selectedRole`) always wins; with no selection the schedule's active set
+// picks the default — the first active role in ROLES order (which IS the
+// tier order: Attackers → Mid-players → Defenders) — falling back to the
+// first role when nothing is schedule-active. `activeRoleIds` (time/weekend/
+// location + overrides) is unchanged; it stays the default-selection driver.
+export function effectiveRoleId(
+  activeRoles: Set<string>,
+  selectedRole: string | null,
+): string {
+  if (selectedRole) return selectedRole
+  for (const role of ROLES) {
+    if (activeRoles.has(role.id)) return role.id
+  }
+  return ROLES[0].id
+}
+
+// done/total task count across a role's projects, deduped by task (a task
+// multi-tagged into two of the role's projects counts once). Groups excluded.
+export function roleProgress(
+  tasks: TaskRow[],
+  roleId: string,
+): { done: number; total: number } {
+  let done = 0
+  let total = 0
+  for (const t of tasks) {
+    if (t.kind !== 'task') continue
+    const inRole = t.tags.some(
+      (tag) => tag in PROJECT_BY_ID && PROJECT_BY_ID[tag].role === roleId,
+    )
+    if (!inRole) continue
+    total++
+    if (t.done) done++
+  }
+  return { done, total }
+}
+
 // ─── task pipeline: role gate → project OR → context AND ──────────────
 // Plus campaign-mode dim: when a priority-family context filter is active,
 // non-matching tasks are dimmed (opacity 0.3) rather than hidden. Other

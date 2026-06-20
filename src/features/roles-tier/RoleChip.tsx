@@ -1,36 +1,33 @@
 import type { CSSProperties } from 'react'
-import type { Role, RoleOverride } from '../../types.ts'
+import type { Role } from '../../types.ts'
 
 type Props = {
   role: Role
+  // Single-focus model: exactly one chip is active (the effective role).
   active: boolean
-  override: RoleOverride
+  progress: { done: number; total: number }
   onClick: () => void
 }
 
-export function RoleChip({ role, active, override, onClick }: Props) {
+export function RoleChip({ role, active, progress, onClick }: Props) {
   const style = { '--h': role.hue } as CSSProperties
-  const className = 'role' + (active ? ' active' : ' muted')
-  const titleSuffix =
-    override === 'auto'
-      ? 'auto by time'
-      : override === 'on'
-        ? 'forced on'
-        : 'muted'
   return (
     <button
       type="button"
-      className={className}
+      className={'role-chip' + (active ? ' active' : ' idle')}
       style={style}
       onClick={onClick}
-      title={`${role.label} · ${titleSuffix} — click to cycle`}
+      aria-pressed={active}
+      title={active ? `${role.label} — click to unpin` : `Focus ${role.label}`}
     >
-      <span className="dot" />
-      <span className="name">{role.label}</span>
-      <span className="sub">{role.subtitle}</span>
-      {override !== 'auto' && (
-        <span className="pin">{override === 'on' ? 'PIN' : 'OFF'}</span>
-      )}
+      <span className="rc-badge">{role.badge}</span>
+      <span className="rc-text">
+        <span className="rc-name">{role.label}</span>
+        <span className="rc-sub">{role.subtitle}</span>
+      </span>
+      <span className="rc-mini">
+        {progress.done}/{progress.total}
+      </span>
     </button>
   )
 }

@@ -10,9 +10,9 @@ import {
 } from '@dnd-kit/core'
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable'
 import { useStore } from '../../store/useStore.ts'
+import { useEffectiveRoleId } from '../../hooks/useEffectiveRoleId.ts'
 import { buildTree, type TreeNode } from '../../lib/tree.ts'
 import {
-  activeRoleIds,
   passingTaskIds,
   visibleGroupIds,
 } from '../../store/selectors.ts'
@@ -23,16 +23,16 @@ export function Tree() {
   const rows = useStore((s) => s.tree)
   const reorderTask = useStore((s) => s.reorderTask)
   const filters = useStore((s) => s.filters)
-  const now = useStore((s) => s.now)
-  const settings = useStore((s) => s.settings)
-  const overrides = settings?.role_overrides ?? {}
+  const effId = useEffectiveRoleId()
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   )
 
-  const active = useMemo(() => activeRoleIds(now, overrides), [now, overrides])
+  // Single-focus role gate: only the effective role's tasks pass (was the
+  // schedule's active-role union). Mirrors FoldersRow so the two never diverge.
+  const active = useMemo(() => new Set([effId]), [effId])
   const { pass, dim } = useMemo(
     () => passingTaskIds(rows, active, filters),
     [rows, active, filters],
