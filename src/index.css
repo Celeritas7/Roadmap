@@ -187,6 +187,24 @@ body {
 }
 .rm .rm-week { font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); }
 
+/* theme switcher — segmented control in rm-meta, styled off the datepill tokens */
+.rm .rm-theme-switch {
+  display: inline-flex; align-items: center; gap: 1px;
+  background: var(--canvas); border: 1px solid var(--rule-strong);
+  border-radius: 7px; padding: 2px;
+}
+.rm .rm-theme-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 24px; height: 20px; padding: 0;
+  border: 0; border-radius: 5px; background: transparent;
+  color: var(--ink-3); cursor: pointer;
+  transition: color .15s ease, background .15s ease;
+}
+.rm .rm-theme-btn:hover { color: var(--ink-2); }
+.rm .rm-theme-btn.active { background: var(--panel); color: var(--accent); }
+.rm .rm-theme-btn svg { width: 14px; height: 14px; display: block; }
+.rm .rm-theme-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
 /* personality tagline — colored by --role-h from the data-role wash above */
 .rm .rm-mood {
   font-size: 12px; font-style: italic; color: hsl(var(--role-h, 220) 46% 46%);
