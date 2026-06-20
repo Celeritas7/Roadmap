@@ -651,6 +651,15 @@ body {
 }
 .rm .log .logempty { padding: 16px 4px; font-size: 12.5px; color: var(--ink-3); }
 
+/* ─── whole-body empty / status states (loading, load-fail, muted roles,
+       no filter matches, empty scope) — shared .empty contract ─── */
+.rm .empty {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; gap: 6px; padding: 64px 24px; min-height: 40vh; color: var(--ink-3);
+}
+.rm .empty h2 { margin: 0; font-size: 16px; font-weight: 600; color: var(--ink-2); }
+.rm .empty p  { margin: 0; font-size: 12.5px; max-width: 42ch; line-height: 1.5; }
+
 /* a logged stop: flat flex row, tick → title → where → dur → del */
 .rm .logrow {
   display: flex; align-items: center; gap: 10px;
